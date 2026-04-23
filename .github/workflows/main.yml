@@ -1,0 +1,41 @@
+name: Ultimate_Zero_Delay_Cloud_V2
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */5 * * *'
+
+jobs:
+  ultra-smooth:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Boost CPU
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-kvm tmate
+          
+      - name: Launch Redroid (Android 11 - Ultra Fast)
+        run: |
+          # Sử dụng Redroid - cực mượt và không bị lỗi Docker Login
+          sudo docker run -d --privileged \
+          -p 6080:6080 -p 5555:5555 \
+          redroid/redroid:11.0.0-latest \
+          androidboot.redroid_width=720 \
+          androidboot.redroid_height=1280 \
+          androidboot.redroid_fps=60
+          
+          # Chạy thêm giao diện web để bạn 'dile'
+          sudo docker run -d -p 6080:80 --name scrcpy-web \
+          --link $(sudo docker ps -q):android \
+          -e ADB_SERVER_IP=android \
+          -e CONNECTION_TIMEOUT=600 \
+          piersy/scrcpy-web
+          
+      - name: Create High-Speed Tunnel (Tmate)
+        run: |
+          tmate -S /tmp/tmate.sock new-session -d
+          tmate -S /tmp/tmate.sock wait tmate-ready
+          tmate -S /tmp/tmate.sock display -p '#{tmate_web}'
+          
+      - name: Eternal Loop
+        run: sleep 19800
+        
